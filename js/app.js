@@ -298,11 +298,41 @@ async function download(tx, type, btn) {
     if (state.segs) save(SeqView.toText(tx, state.segs), `${tx.name}_annotated.txt`);
     return;
   }
-  const old = btn.textContent; btn.textContent = '…';
+  if (btn.disabled) return;
+  const old = btn.innerHTML, label = { cdna: 'cDNA', cds: 'CDS', protein: 'protein' }[type];
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span>Preparing…`;
+  const tip = bubble(btn, `<span class="spinner"></span>Fetching the ${label} sequence from Ensembl…<br>
+    <span class="muted">Your download will start automatically. This can take several seconds.</span>`);
   try {
     const r = await API.sequenceId(tx.id, type);
     const seq = (r.seq || '').replace(/(.{60})/g, '$1\n');
     save(`>${tx.id} ${tx.name} ${type}\n${seq}\n`, `${tx.name}_${type}.fa`);
-  } catch (e) { alert('Download failed: ' + e.message); }
-  btn.textContent = old;
+    tip.set(`✓ ${esc(tx.name)}_${type}.fa downloaded`, 2500);
+  } catch (e) { tip.set(`Download failed: ${esc(e.message)}`, 6000, true); }
+  btn.disabled = false;
+  btn.innerHTML = old;
+}
+
+/** Small bubble under an element; returns { set(html, closeAfterMs, isErr) }. */
+function bubble(anchor, html) {
+  const box = anchor.offsetParent || document.body;
+  const el = document.createElement('div');
+  el.className = 'bubble';
+  el.setAttribute('role', 'status');
+  el.innerHTML = html;
+  el.style.top = anchor.offsetTop + anchor.offsetHeight + 8 + 'px';
+  box.appendChild(el);
+  // keep the bubble inside the panel (which clips overflow); the arrow still points at the anchor
+  const right = (anchor.closest('.panel') || document.body).getBoundingClientRect().right - 8;
+  const left = anchor.offsetLeft - Math.max(0, box.getBoundingClientRect().left + anchor.offsetLeft + el.offsetWidth - right);
+  el.style.left = left + 'px';
+  el.style.setProperty('--arrow', anchor.offsetLeft - left + 14 + 'px');
+  return {
+    set(h, ms, isErr = false) {
+      el.innerHTML = h;
+      el.classList.toggle('error', isErr);
+      setTimeout(() => el.remove(), ms);
+    },
+  };
 }

@@ -110,3 +110,12 @@ main{max-width:1400px;margin:16px auto;padding:0 16px;display:flex;flex-directio
 @keyframes spin{to{transform:rotate(360deg)}}
 .foot{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 @media (max-width:640px){.brand small{display:none}.gene-info{grid-template-columns:1fr}.gene-info dt{margin-top:4px}}
+/* download progress bubble */
+#seqTools{position:relative}
+.btn:disabled{cursor:progress;opacity:.75}
+.bubble{position:absolute;z-index:20;width:max-content;max-width:300px;padding:8px 11px;border-radius:6px;background:var(--head);color:#fff;font-size:12px;line-height:1.4;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.bubble::before{content:"";position:absolute;top:-6px;border:6px solid transparent;border-top:0;border-bottom-color:var(--head);left:var(--arrow,14px)}
+.bubble .muted{color:#c9d4e2}
+.bubble .spinner{border-color:rgba(255,255,255,.35);border-top-color:#fff}
+.bubble.error{background:#8c1d12}
+.bubble.error::before{border-bottom-color:#8c1d12}
