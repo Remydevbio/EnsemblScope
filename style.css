@@ -1,0 +1,112 @@
+:root{
+  --bg:#f3f5f8; --panel:#fff; --ink:#1d2733; --muted:#6b7785; --line:#d9dfe7;
+  --head:#22364d; --head2:#e8eef6; --accent:#1f6fbf; --sel:#fff5c2;
+  --utr5:#a35a00; --utr5-bg:#fff1dc;
+  --cds:#0b4a99;  --cds-bg:#dfeaf9;
+  --utr3:#6d3596; --utr3-bg:#f1e6f8;
+  --nc:#2b6d2f;   --nc-bg:#e4f3e4;
+  --intron:#8a939e; --splice:#c0392b;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+.hidden{display:none!important}
+.muted{color:var(--muted);font-weight:400} .small{font-size:12px}
+
+/* header */
+.top{background:var(--head);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:10px 20px;position:sticky;top:0;z-index:20}
+.brand{font-weight:700;font-size:18px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand small{font-weight:400;font-size:12px;opacity:.7}
+.logo{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:6px;background:#f2b631;color:var(--head);font-weight:800}
+.search{display:flex;flex:1;min-width:280px;gap:6px}
+.search select,.search input,.search button{font:inherit;border-radius:5px;border:0;padding:7px 10px}
+.search input{flex:1;min-width:120px}
+.search button{background:#f2b631;color:var(--head);font-weight:700;cursor:pointer}
+.search button:hover{background:#ffc94d}
+
+main{max-width:1400px;margin:16px auto;padding:0 16px;display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:var(--head2);padding:8px 14px;border-bottom:1px solid var(--line)}
+.panel-head h2{font-size:15px;margin:0}
+.welcome{padding:24px}
+.welcome h2{margin-top:0}
+.examples a{font-weight:600}
+.status{padding:10px 14px;border-radius:6px;background:#e8f1fb;border:1px solid #bcd3ee}
+.status.error{background:#fdecea;border-color:#f3b7b0;color:#8c1d12}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a,.btn{display:inline-block;font-size:12px;padding:3px 9px;border-radius:4px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-family:inherit}
+.links a:hover,.btn:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+
+.gene-info{padding:12px 14px;display:grid;grid-template-columns:max-content 1fr;gap:4px 16px}
+.gene-info dt{color:var(--muted)} .gene-info dd{margin:0}
+
+/* transcript table */
+.table-wrap{overflow-x:auto}
+.tx-table{border-collapse:collapse;width:100%;font-size:13px}
+.tx-table th,.tx-table td{padding:6px 10px;border-bottom:1px solid #edf0f4;text-align:left;white-space:nowrap}
+.tx-table th{background:#f7f9fc;font-weight:600;cursor:pointer;user-select:none;position:sticky;top:0}
+.tx-table th[data-sort]:hover{color:var(--accent)}
+.tx-table th.sorted::after{content:" ▾";color:var(--accent)} .tx-table th.sorted.asc::after{content:" ▴"}
+.tx-table td.num,.tx-table th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tx-table tbody tr{cursor:pointer}
+.tx-table tbody tr:hover{background:#f4f8fd}
+.tx-table tbody tr.selected{background:var(--sel)}
+.tx-name{font-weight:600}
+.pending{color:#b3bcc6}
+.badge{display:inline-block;font-size:11px;line-height:1;padding:3px 6px;border-radius:3px;margin-right:3px;background:#eef1f5;color:#445}
+.badge.mane{background:#f2b631;color:#3a2a00;font-weight:700}
+.badge.manepc{background:#f7d27a;color:#3a2a00}
+.badge.canon{background:#22364d;color:#fff}
+.badge.basic{background:#e3ecf7;color:#22476e}
+.badge.tsl{background:#eef6ea;color:#2b5b20}
+.toggle{font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer}
+
+/* genome viewer */
+#viewer{padding:8px 10px 12px}
+.gv-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px}
+.gv-loc{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px}
+.gv-canvas{position:relative;user-select:none;touch-action:none}
+.gv-canvas svg{display:block;width:100%;cursor:grab}
+.gv-canvas svg.dragging{cursor:grabbing}
+.gv-tip{position:absolute;pointer-events:none;background:rgba(20,30,45,.94);color:#fff;font-size:12px;padding:6px 8px;border-radius:4px;white-space:pre;z-index:5;display:none;max-width:360px}
+.gv-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}
+.gv-legend i{display:inline-block;width:18px;height:10px;vertical-align:middle;margin-right:4px;border-radius:2px}
+
+/* sequence */
+#seqBody{padding:12px 14px}
+.seq-summary{display:flex;flex-wrap:wrap;gap:8px 22px;margin-bottom:10px;font-size:13px}
+.seq-summary b{font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px;font-size:12px}
+.legend span{font-family:var(--mono);padding:2px 7px;border-radius:3px}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.chip{font-size:11px;font-family:var(--mono);padding:2px 6px;border-radius:3px;border:1px solid var(--line);cursor:pointer;background:#fff}
+.chip.ex{border-color:#9fb8d8} .chip.in{color:var(--intron)}
+.chip:hover{border-color:var(--accent)}
+.seg{border:1px solid var(--line);border-radius:6px;margin-bottom:10px;overflow:hidden;scroll-margin-top:70px}
+.seg-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:5px 10px;font-size:12.5px;background:#f7f9fc;border-bottom:1px solid #edf0f4}
+.seg-head .t{font-weight:700}
+.seg-head .c{font-family:var(--mono);color:var(--muted);font-size:11.5px}
+.seg-head .btn{margin-left:auto;padding:1px 7px}
+.seg.intron{background:#fbfbfc}
+.seg.intron .seg-head{background:#f3f4f6;color:#555}
+.part{padding:4px 10px 6px}
+.part + .part{border-top:1px dashed #e3e7ec}
+.part-label{font-size:11px;font-weight:700;letter-spacing:.03em;margin:2px 0 2px}
+.seqblock{font-family:var(--mono);font-size:12.5px;line-height:1.6;overflow-x:auto}
+.sl{white-space:pre;display:flex}
+.sn{color:#9aa4b0;min-width:6.5ch;text-align:right;padding-right:1.5ch;user-select:none;flex:none}
+.u5{color:var(--utr5);background:var(--utr5-bg)}
+.cd{color:var(--cds);background:var(--cds-bg);font-weight:600}
+.u3{color:var(--utr3);background:var(--utr3-bg)}
+.nc{color:var(--nc);background:var(--nc-bg)}
+.in{color:var(--intron)}
+.ss{color:var(--splice);font-weight:700}
+.lab-u5{color:var(--utr5)} .lab-cd{color:var(--cds)} .lab-u3{color:var(--utr3)} .lab-nc{color:var(--nc)}
+.gap{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;padding:3px 0;margin:2px 0;background:repeating-linear-gradient(90deg,#eef0f3 0 6px,transparent 6px 12px)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;font-size:13px}
+.controls select{font:inherit;padding:2px 4px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #bcd3ee;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.foot{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media (max-width:640px){.brand small{display:none}.gene-info{grid-template-columns:1fr}.gene-info dt{margin-top:4px}}

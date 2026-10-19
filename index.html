@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeneScope — Ensembl-style browser</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">G</span>GeneScope <small>Ensembl REST browser</small></div>
+  <form id="searchForm" class="search" autocomplete="off">
+    <select id="species" aria-label="Species">
+      <option value="human">Human (GRCh38)</option>
+      <option value="mouse">Mouse (GRCm39)</option>
+    </select>
+    <input id="query" type="text" placeholder="Gene symbol or Ensembl ID — e.g. GPR182, BRCA2, ENSG00000139618" required>
+    <button type="submit">Search</button>
+  </form>
+</header>
+
+<main>
+  <div id="status" class="status hidden"></div>
+
+  <section id="welcome" class="panel welcome">
+    <h2>Search a human or mouse gene</h2>
+    <p>Data are fetched live from the public <a href="https://rest.ensembl.org" target="_blank" rel="noopener">Ensembl REST API</a> — nothing to download.</p>
+    <p class="examples">Try:
+      <a href="#/human/GPR182">GPR182</a> ·
+      <a href="#/human/ACKR3">ACKR3</a> ·
+      <a href="#/human/BRCA2">BRCA2</a> ·
+      <a href="#/mouse/Gpr182">Gpr182 (mouse)</a> ·
+      <a href="#/mouse/Adm">Adm (mouse)</a>
+    </p>
+  </section>
+
+  <section id="genePanel" class="panel hidden">
+    <div class="panel-head"><h2 id="geneTitle"></h2><div id="geneLinks" class="links"></div></div>
+    <div id="geneInfo" class="gene-info"></div>
+  </section>
+
+  <section id="txPanel" class="panel hidden">
+    <div class="panel-head">
+      <h2>Transcripts <span id="txCount" class="muted"></span></h2>
+      <label class="toggle"><input type="checkbox" id="onlyCoding"> protein-coding only</label>
+    </div>
+    <div class="table-wrap">
+      <table id="txTable" class="tx-table">
+        <thead><tr>
+          <th data-sort="name">Name</th>
+          <th data-sort="id">Transcript ID</th>
+          <th data-sort="length" class="num">bp</th>
+          <th data-sort="aa" class="num">Protein</th>
+          <th data-sort="biotype">Biotype</th>
+          <th data-sort="ccds">CCDS</th>
+          <th>RefSeq (NCBI)</th>
+          <th>UniProt</th>
+          <th>Flags</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="viewerPanel" class="panel hidden">
+    <div class="panel-head"><h2>Genome view</h2><span class="muted small">Drag to pan · wheel to zoom · click a transcript to open it</span></div>
+    <div id="viewer"></div>
+  </section>
+
+  <section id="seqPanel" class="panel hidden">
+    <div class="panel-head"><h2 id="seqTitle">Transcript sequence</h2><div id="seqTools" class="links"></div></div>
+    <div id="seqBody"></div>
+  </section>
+</main>
+
+<footer class="foot">Data: Ensembl REST API (rest.ensembl.org). Links to NCBI RefSeq / CCDS / Gene and UniProt.</footer>
+
+<script src="js/api.js"></script>
+<script src="js/viewer.js"></script>
+<script src="js/sequence.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
