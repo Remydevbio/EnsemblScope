@@ -165,7 +165,7 @@ function renderGene() {
       ext(`https://www.ncbi.nlm.nih.gov/gene/?term=${encodeURIComponent((g.display_name || g.id) + '[sym] AND ' + sp.name + '[orgn]')}`, 'NCBI Gene'),
     ext(`https://genome.ucsc.edu/cgi-bin/hgTracks?db=${sp.ucsc}&position=${ucscChr}:${g.start}-${g.end}`, 'UCSC'),
     state.sp === 'human' ? ext(`https://www.genecards.org/cgi-bin/carddisp.pl?gene=${encodeURIComponent(g.display_name || '')}`, 'GeneCards')
-      : ext(`https://www.informatics.jax.org/searchtool/Search.do?query=${encodeURIComponent(g.display_name || g.id)}`, 'MGI'),
+      : ext(`https://www.informatics.jax.org/quicksearch/summary?queryType=exactPhrase&query=${encodeURIComponent(g.display_name || g.id)}&submit=Quick%0D%0ASearch`, 'MGI'),
   ];
   $('#geneLinks').innerHTML = links.join('');
   $('#geneInfo').innerHTML = `
@@ -280,7 +280,10 @@ async function loadSequence(tx) {
     });
   } catch (e) {
     if (token !== state.seqToken) return;
-    body.innerHTML = `<div class="status error">Could not load sequence: ${esc(e.message)}</div>`;
+    // successful chunks stay cached in API, so a retry only re-fetches the failed ones
+    body.innerHTML = `<div class="status error">Could not load sequence: ${esc(e.message)}
+      <button class="btn" id="seqRetry">Retry</button></div>`;
+    $('#seqRetry').onclick = () => loadSequence(tx);
   }
 }
 

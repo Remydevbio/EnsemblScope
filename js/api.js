@@ -1,4 +1,4 @@
-/* Ensembl REST API client: throttled (Ensembl allows ~15 req/s), cached, retries on 429. */
+/* Ensembl REST API client: throttled (Ensembl allows ~15 req/s), cached, retries on 429/5xx/network errors. */
 const API = (() => {
   const BASE = 'https://rest.ensembl.org';
   const MAX_CONCURRENT = 5;
@@ -7,6 +7,8 @@ const API = (() => {
   let active = 0;
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
+  // Ensembl has transient 5xx outages lasting tens of seconds; back off 1.5, 3, 6, 12, 15, 15 s (~50 s total).
+  const backoff = attempt => Math.min(1500 * 2 ** attempt, 15000);
 
   function schedule(fn) {
     return new Promise((resolve, reject) => { queue.push({ fn, resolve, reject }); pump(); });
@@ -19,7 +21,7 @@ const API = (() => {
     }
   }
 
-  function request(path, { method = 'GET', body = null, retries = 4 } = {}) {
+  function request(path, { method = 'GET', body = null, retries = 6 } = {}) {
     const key = method + ' ' + path + (body ? JSON.stringify(body) : '');
     if (cache.has(key)) return cache.get(key);
     const p = schedule(async () => {
@@ -29,18 +31,20 @@ const API = (() => {
         if (method === 'GET') {
           url += (url.includes('?') ? '&' : '?') + 'content-type=application/json';
         } else {
-          init.headers['Content-Type'] = 'application/json';
+          // text/plain keeps this a CORS "simple" request (no OPTIONS preflight, which Ensembl often
+          // answers with a 5xx lacking CORS headers); Ensembl still parses the JSON body.
+          init.headers['Content-Type'] = 'text/plain';
           init.body = JSON.stringify(body);
         }
         let r;
         try { r = await fetch(url, init); }
         catch (e) {
-          if (attempt < retries) { await sleep(800 * (attempt + 1)); continue; }
+          if (attempt < retries) { await sleep(backoff(attempt)); continue; }
           throw new Error('Network error contacting Ensembl (' + e.message + ')');
         }
         if ((r.status === 429 || r.status >= 500) && attempt < retries) {
           const ra = parseFloat(r.headers.get('Retry-After'));
-          await sleep(isFinite(ra) ? ra * 1000 + 100 : 1000 * (attempt + 1));
+          await sleep(isFinite(ra) ? ra * 1000 + 100 : backoff(attempt));
           continue;
         }
         if (!r.ok) {
@@ -86,7 +90,8 @@ const API = (() => {
     async sequenceRegions(species, regions) {
       const out = new Map();
       const chunks = [];
-      for (let i = 0; i < regions.length; i += 50) chunks.push(regions.slice(i, i + 50));
+      // small chunks: Ensembl takes ~20 s per 50 regions under load, and long requests are the ones that time out
+      for (let i = 0; i < regions.length; i += 25) chunks.push(regions.slice(i, i + 25));
       await Promise.all(chunks.map(async chunk => {
         const res = await request(`/sequence/region/${species}`, { method: 'POST', body: { regions: chunk } });
         res.forEach((r, i) => out.set(chunk.includes(r.query) ? r.query : chunk[i], r.seq));
