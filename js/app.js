@@ -66,7 +66,7 @@ async function loadGene(sp, query, txId) {
   setStatus('');
   state.gene = gene;
   state.txs = (gene.Transcript || []).map(t => normTx(t, gene));
-  document.title = `${gene.display_name || gene.id} — GeneScope`;
+  document.title = `${gene.display_name || gene.id} — EnsemblScope`;
 
   renderGene();
   renderTable();
